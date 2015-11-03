@@ -48,8 +48,11 @@ main:
 	lw $s1, star
 	jal hidestar
 	# Initialize Pointer Function
+	li $a3, 0
+	jal startingloc
 
-	jal testarray
+
+	#jal testarray
 
 	#la $a0, omessage # Print opening message
 	#li $v0, 4
@@ -106,22 +109,50 @@ startingloc:
 	li $a1, 8
 	syscall
 	addi $a0, $a0, 1
-	lw $a0, x
+	sw $a0, x
+
 
 	li $v0, 42	# Random starting Column
 	li $a1, 8
 	syscall
 	addi $a0, $a0, 1
-	lw $a0, y
+	sw $a0, y
 
 	li $v0, 42	# Random starting level
 	li $a1, 8
 	syscall
 	addi $a0, $a0, 1
-	lw $a0, z
+	sw $a0, z
 
 	la $a0, starting
+	li $v0, 4
+	syscall
 
+	lw $a0, x
+	li $v0, 1
+	syscall
+
+	la $a0, sep
+	li $v0, 4
+	syscall
+
+	lw $a0, y
+	li $v0, 1
+	syscall
+
+	la $a0, sep
+	li $v0, 4
+	syscall
+
+	lw $a0, z
+	li $v0, 1
+	syscall
+
+	la $a0, closer
+	li $v0, 4
+	syscall
+
+	jr $ra
 
 testarray:
 	li $t6, 1
