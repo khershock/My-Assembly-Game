@@ -7,14 +7,11 @@ star: 			.word 5
 x: 				.word 0
 y:				.word 0
 z: 				.word 0
-sandwiches:		.word 0
-mustard:		.word 0
+sandwiches:		.word 0		# 5 Max in inventory
+mustard:		.word 0		# 5 Max in inventory
 health:			.word 10
 
-starting: 	.asciiz "Your starting location is ("
-newlocp:	.asciiz "Your current location is ("
-sep:		.asciiz " , "
-closer:		.asciiz ")"
+# List of Commands
 left:		.asciiz "l\n"
 right:		.asciiz "r\n"
 up:			.asciiz "u\n"
@@ -23,6 +20,16 @@ forward:	.asciiz "f\n"
 backward:	.asciiz "b\n"
 sleep:		.asciiz "s\n"
 quit:		.asciiz "q\n"
+inventory: 	.asciiz "i\n"
+checkh:		.asciiz	"h\n"
+rules:		.asciiz "rules"
+
+
+# Strings used by game
+starting: 	.asciiz "Your starting location is ("
+newlocp:	.asciiz "Your current location is ("
+sep:		.asciiz " , "
+closer:		.asciiz ")"
 newline:	.asciiz "\n\n"
 omessage:	.asciiz "Welcome to the game! You are going to be put into a 8 x 8 x 8 board, you must find the diamond to win! You begin with (x) health. If you get bit by a snake you lose (x) health. There are burgers scattered thoughout the board that you may eat to regain health. The inputs that are acceptable are as followed:\n u: Move Up\n d: Move Down\n l: Move Left\n r: Move Right\n f: Move Forward\n b: Move Backwards\n s: Sleep\n q: Quit\n"
 badinput:	.asciiz "THAT INPUT IS INVALID!!"
@@ -37,10 +44,14 @@ bp:			.asciiz "You went backwards"
 sp:			.asciiz "You went to sleep"
 qp:			.asciiz "You quit"
 snakep:		.asciiz "SnakeTime"
-sandp:		.asciiz "SammichTime"
+sandp:		.asciiz "You found a sandwich! It has been added to your inventory."
+sandp2:		.asciiz "You now have "
+sandp3:		.asciiz	" sandwiches in your inventory."
+maxsand:	.asciiz "Sorry, but you can only carry 5 sandwhiches at once, eat some to make room."
 mustp:		.asciiz "TurdTime"
 safep:		.asciiz "SafeTime"
-diamondp:		.asciiz "You won mothafucka"
+diamondp:	.asciiz "You won mothafucka"
+
 #rulesp:		.asciiz "Enter prompt for rules"
 #controlsp		prompt that tells user controls, if forgotten.
 
@@ -608,9 +619,38 @@ foundsnake:
 	j newloc
 
 foundsandwich:
+	lw $t0, sandwiches
+	li $t1, 1
+	li $t2, 5
 	la $a0, sandp
 	li $v0, 4
 	syscall
+
+	add $t3, $t0, $t1			# Add 1 to total sandwiches
+	bgt $t3, $t2, sandfull
+	add $t0, $t1, $t0
+	sw $t0, sandwiches
+
+	la $a0, newline
+	li $v0, 4
+	syscall
+
+	la $a0, sandp2
+	li $v0, 4
+	syscall
+
+	la $a0, ($t0)
+	li $v0, 1
+	syscall
+
+	la $a0, sandp3
+	li $v0, 4
+	syscall
+
+	la $a0, newline
+	li $v0, 4
+	syscall
+
 
 	j newloc
 
@@ -698,8 +738,16 @@ newloc:
 	la $a0, buffer
 	j loadl
 
+sandfull:
+	la $a0, newline
+	li $v0, 4
+	syscall
 
+	la $a0, maxsand
+	li $v0, 4
+	syscall
 
+	j newloc
 
 goquit:
 	la $a0, qp
