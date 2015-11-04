@@ -12,6 +12,7 @@ mustard:		.word 0
 health:			.word 10
 
 starting: 	.asciiz "Your starting location is ("
+newlocp:	.asciiz "Your current location is ("
 sep:		.asciiz " , "
 closer:		.asciiz ")"
 left:		.asciiz "l\n"
@@ -656,7 +657,7 @@ newloc:
 	li $v0, 4
 	syscall
 
-	la $a0, starting
+	la $a0, newlocp
 	li $v0, 4
 	syscall
 
