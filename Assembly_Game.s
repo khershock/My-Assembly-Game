@@ -22,6 +22,8 @@ sleep:		.asciiz "s\n"
 quit:		.asciiz "q\n"
 inventory: 	.asciiz "i\n"
 checkh:		.asciiz	"h\n"
+yes:		.asciiz "y\n"
+no:			.asciiz "n\n"
 rules:		.asciiz "rules"
 
 
@@ -43,7 +45,7 @@ fp: 		.asciiz "You went forward"
 bp:			.asciiz "You went backwards"
 sp:			.asciiz "You went to sleep"
 qp:			.asciiz "You quit"
-snakep:		.asciiz "SnakeTime"
+snakep:		.asciiz "You were bitten by the snake! You lost 2 HP"
 sandp:		.asciiz "You found a sandwich! It has been added to your inventory."
 sandp2:		.asciiz "You now have "
 sandp3:		.asciiz	" sandwiches in your inventory."
@@ -51,6 +53,9 @@ maxsand:	.asciiz "Sorry, but you can only carry 5 sandwhiches at once, eat some 
 mustp:		.asciiz "TurdTime"
 safep:		.asciiz "SafeTime"
 diamondp:	.asciiz "You won mothafucka"
+hpp:		.asciiz "Your new HP is: "
+deadp:		.asciiz "You died :("
+newgame:	.asciiz "Would you like to start a new game? (y or n): "
 
 #rulesp:		.asciiz "Enter prompt for rules"
 #controlsp		prompt that tells user controls, if forgotten.
@@ -64,6 +69,13 @@ valp:		.asciiz "The value in this location is: "
 
 	.text
 main:
+	li $t0, 10
+	sw $t0, health		# Reset Health on new game
+
+	li $t0, 0
+	sw $t0, sandwiches # Reset sandwhiches on new game
+	sw $t0, mustard		# Reset Mustard on new game
+
 	lw $s0, size  		# Load in array length
 	la $s1, list 		# Load in list start
 	li $t0, 0 			# Elemant counter
@@ -269,6 +281,32 @@ loadq:
 loads:
 	la $a1, sleep
 	j comparestr_s
+
+loady:
+	la $a1, yes
+	j comparestr_y
+
+loadn:
+	la $a1, no
+	j comparestr_n
+
+comparestr_y:
+	lbu $t0, ($a0)
+	lbu $t1, ($a1)
+	bne $t0, $t1, loadn
+	addi $a0, $a0, 1
+	addi $a1, $a1, 1
+	beq $t0, $zero, main
+	j comparestr_y
+
+comparestr_n:
+	lbu $t0, ($a0)
+	lbu $t1, ($a1)
+	bne $t0, $t1, noinput
+	addi $a0, $a0, 1
+	addi $a1, $a1, 1
+	beq $t0, $zero, goquit
+	j comparestr_n
 
 comparestr_l:
 	lbu $t0, ($a0)
@@ -612,8 +650,32 @@ gosleep:
 
 #spray:
 foundsnake:
+	la $a0, newline
+	li $v0, 4
+	syscall
+
+	lw $t0, health
+	li $t1, 2
+
 	la $a0, snakep
 	li $v0, 4
+	syscall
+
+	la $a0, newline
+	li $v0, 4
+	syscall
+
+	sub $t0, $t0, $t1
+	sw $t0, health
+
+	beq $t0, $zero, dead
+
+	la $a0, hpp
+	li $v0, 4
+	syscall
+
+	la $a0, ($t0)
+	li $v0, 1
 	syscall
 
 	j newloc
@@ -762,6 +824,22 @@ outofbounds:
 	syscall
 
 	j newloc
+
+dead:
+	la $a0, deadp
+	li $v0, 4
+	syscall
+
+	la $a0, newgame
+	li $v0, 4
+	syscall
+
+	la $a0, buffer
+	la $a1, Isize
+	li $v0, 8
+	syscall
+	la $a0, buffer
+	j loady
 
 return:
 	jr $ra
