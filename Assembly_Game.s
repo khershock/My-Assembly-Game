@@ -18,6 +18,15 @@ musteaten:		.word 0
 snakebites:		.word 0
 totalmoves:		.word 0
 
+#Title and Names
+title: 		.asciiz	"ASSEMBLY ADVENTURES: QUEST FOR THE BLOOD DIAMOND\n"
+by:			.asciiz "Created By:\n"
+kory:		.asciiz	"Kory Hershock\n"
+grant:		.asciiz	"Grant Arras\n"
+ethan:		.asciiz	"Ethan Hicks\n"
+jacob:		.asciiz "Jacob Reinsmith\n"
+sep2:		.asciiz "#################################################\n"
+
 # List of Commands
 fleft:		.asciiz "q\n"
 fright:		.asciiz "e\n"
@@ -124,6 +133,30 @@ main:
 	li $v0, 30
 	syscall
 	sw $a1, time1
+	la $a0, sep2
+	li $v0, 4
+	syscall
+	la $a0, title
+	li $v0, 4
+	syscall
+	la $a0, by
+	li $v0, 4
+	syscall
+	la $a0, kory
+	li $v0, 4
+	syscall
+	la $a0, grant
+	li $v0, 4
+	syscall
+	la $a0, ethan
+	li $v0, 4
+	syscall
+	la $a0, jacob
+	li $v0, 4
+	syscall
+	la $a0, sep2
+	li $v0, 4
+	syscall
 
 	la $a0, omessage 	# Print opening message
 	li $v0, 4
